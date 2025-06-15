@@ -12,49 +12,7 @@ pipeline {
             }
         }
 
-        // Étape 2 : Build Backend (Spring Boot)
-        stage('Build Backend') {
-            steps {
-                dir('backend') {
-                    sh './mvnw clean package -DskipTests'
-                }
-            }
-        }
 
-        // Étape 3 : Build Frontend (Angular)
-        stage('Build Frontend') {
-            steps {
-                dir('frontend') {
-                    sh 'npm install'
-                    sh 'npm run build -- --configuration=production'
-                }
-            }
-        }
-
-        // Étape 4 : Analyse SonarQube (optionnel)
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube-Server') {  // Nom de votre serveur SonarQube dans Jenkins
-                    dir('backend') {
-                        sh './mvnw sonar:sonar'
-                    }
-                }
-            }
-        }
-
-        // Étape 5 : Déploiement (exemple avec Docker)
-        stage('Deploy with Docker') {
-            steps {
-                script {
-                    // Build des images
-                    docker.build("kaddem-backend:latest", "--file backend/Dockerfile ./backend")
-                    docker.build("kaddem-frontend:latest", "--file frontend/Dockerfile ./frontend")
-
-                    // Lancement avec docker-compose
-                    sh 'docker-compose -f docker-compose.prod.yml up -d'
-                }
-            }
-        }
     }
     post {
         success {
