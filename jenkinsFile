@@ -11,12 +11,24 @@ pipeline {
                 git branch: 'master', url: 'https://github.com/YassmineTriki/kaddem.git'
             }
         }
+        /* Étape 2 - Build */
         stage('Build') {
               steps {
                   sh 'ls -l mvnw'
                   sh './mvnw clean package'
               }
         }
+        /* Étape 3 - Tests Unitaires (nouveau) */
+         stage('Unit Tests') {
+                    steps {
+                        sh './mvnw test'  // Exécute uniquement les tests
+                    }
+                    post {
+                        always {
+                            junit '**/target/surefire-reports/*.xml'  // Publie les rapports JUnit
+                        }
+                    }
+                }
     }
 
 
