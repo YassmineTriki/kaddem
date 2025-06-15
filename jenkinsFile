@@ -3,12 +3,13 @@ pipeline {
     tools {
         jdk 'JDK-17'      // Nom de votre JDK configuré dans Jenkins
         nodejs 'Node-18'   // Nom de Node.js configuré dans Jenkins
+        maven 'Maven-3.9'
     }
     stages {
         // Étape 1 : Récupération du code
         stage('Checkout Git') {
             steps {
-                git branch: 'master', url: 'https://github.com/YassmineTriki/kaddem/tree/master'
+                git branch: 'master', url: 'https://github.com/YassmineTriki/kaddem.git'
             }
         }
 
