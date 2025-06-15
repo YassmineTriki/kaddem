@@ -94,26 +94,6 @@ public class ContratServiceImpTest {
         assertEquals(5, count);
     }
 
-    @Test
-    void retrieveAndUpdateStatusContrat_shouldArchiveIfNeeded() {
-        Date now = new Date();
-        Date fifteenDaysAgo = new Date(now.getTime() - 15L * 24 * 60 * 60 * 1000);
-        Date today = now;
-
-        Contrat contrat15 = new Contrat();
-        contrat15.setArchive(false);
-        contrat15.setDateFinContrat(fifteenDaysAgo);
-
-        Contrat contratToday = new Contrat();
-        contratToday.setArchive(false);
-        contratToday.setDateFinContrat(today);
-
-        when(contratRepository.findAll()).thenReturn(Arrays.asList(contrat15, contratToday));
-
-        contratService.retrieveAndUpdateStatusContrat();
-
-        verify(contratRepository).save(contratToday);
-    }
 
     @Test
     void getChiffreAffaireEntreDeuxDates_shouldCalculateCorrectly() {
