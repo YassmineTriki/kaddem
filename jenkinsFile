@@ -1,0 +1,67 @@
+pipeline {
+    agent any
+    tools {
+        jdk 'JDK-17'      // Nom de votre JDK configuré dans Jenkins
+        nodejs 'Node-18'   // Nom de Node.js configuré dans Jenkins
+    }
+    stages {
+        // Étape 1 : Récupération du code
+        stage('Checkout Git') {
+            steps {
+                git branch: 'main', url: 'https://github.com/YassmineTriki/kaddem.git'
+            }
+        }
+
+        // Étape 2 : Build Backend (Spring Boot)
+        stage('Build Backend') {
+            steps {
+                dir('backend') {
+                    sh './mvnw clean package -DskipTests'
+                }
+            }
+        }
+
+        // Étape 3 : Build Frontend (Angular)
+        stage('Build Frontend') {
+            steps {
+                dir('frontend') {
+                    sh 'npm install'
+                    sh 'npm run build -- --configuration=production'
+                }
+            }
+        }
+
+        // Étape 4 : Analyse SonarQube (optionnel)
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube-Server') {  // Nom de votre serveur SonarQube dans Jenkins
+                    dir('backend') {
+                        sh './mvnw sonar:sonar'
+                    }
+                }
+            }
+        }
+
+        // Étape 5 : Déploiement (exemple avec Docker)
+        stage('Deploy with Docker') {
+            steps {
+                script {
+                    // Build des images
+                    docker.build("kaddem-backend:latest", "--file backend/Dockerfile ./backend")
+                    docker.build("kaddem-frontend:latest", "--file frontend/Dockerfile ./frontend")
+
+                    // Lancement avec docker-compose
+                    sh 'docker-compose -f docker-compose.prod.yml up -d'
+                }
+            }
+        }
+    }
+    post {
+        success {
+            slackSend channel: '#devops', message: '✅ Pipeline réussi : Kaddem déployé avec succès!'
+        }
+        failure {
+            slackSend channel: '#devops', message: '❌ Pipeline échoué : Vérifiez les logs Jenkins.'
+        }
+    }
+}
