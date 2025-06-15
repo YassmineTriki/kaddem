@@ -13,8 +13,7 @@ pipeline {
         }
         stage('Build') {
               steps {
-                  sh 'git config core.fileMode true'
-                  sh 'git update-index --chmod=+x mvnw'
+                  sh 'ls -l mvnw'
                   sh './mvnw clean package'
               }
         }
