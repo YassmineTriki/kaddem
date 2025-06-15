@@ -13,6 +13,7 @@ pipeline {
         }
         stage('Build') {
               steps {
+                  sh 'chmod +x mvnw'
                   sh './mvnw clean package'  // Compile + crée le JAR dans /target
               }
         }
