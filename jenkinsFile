@@ -14,12 +14,5 @@ pipeline {
 
 
     }
-    post {
-        success {
-            slackSend channel: '#devops', message: '✅ Pipeline réussi : Kaddem déployé avec succès!'
-        }
-        failure {
-            slackSend channel: '#devops', message: '❌ Pipeline échoué : Vérifiez les logs Jenkins.'
-        }
-    }
+
 }
