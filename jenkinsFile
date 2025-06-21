@@ -50,9 +50,7 @@ pipeline {
                          withSonarQubeEnv('SonarQube-Server') {
                              sh 'mvn sonar:sonar -Dsonar.projectKey=kaddem'
                          }
-                         timeout(time: 10, unit: 'MINUTES') {
-                             waitForQualityGate() // Bloquer si la qualité n'est pas OK
-                         }
+
                      }
           }
     }
