@@ -4,6 +4,10 @@ pipeline {
         jdk 'JDK-17'      // Nom de votre JDK configuré dans Jenkins
         maven 'Maven-3.9'
     }
+      environment {
+            // Active le profil 'test' uniquement pour les étapes de test
+            TEST_PROFILE = '-Dspring.profiles.active=test'
+        }
     stages {
         // Étape 1 : Récupération du code
         stage('Checkout Git') {
@@ -15,20 +19,31 @@ pipeline {
         stage('Build') {
               steps {
                   sh 'ls -l mvnw'
-                  sh './mvnw clean package'
+                  sh './mvnw clean compile -DskipTests'
               }
         }
         /* Étape 3 - Tests Unitaires (nouveau) */
          stage('Unit Tests') {
                     steps {
-                        sh './mvnw test'  // Exécute uniquement les tests
+                         sh """
+                         ./mvnw test $TEST_PROFILE \
+                         -Dspring.datasource.url=jdbc:h2:mem:testdb \
+                         -Dspring.jpa.hibernate.ddl-auto=create-drop
+                         """
                     }
                     post {
                         always {
                             junit '**/target/surefire-reports/*.xml'  // Publie les rapports JUnit
+                              archiveArtifacts artifacts: '**/target/surefire-reports/*.txt', allowEmptyArchive: true
                         }
                     }
+         }
+          /* Étape 4 - Packaging final */
+          stage('Package') {
+                steps {
+                       sh './mvnw package -DskipTests'
                 }
+          }
     }
 
 
