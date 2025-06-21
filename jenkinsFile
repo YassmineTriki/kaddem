@@ -44,6 +44,17 @@ pipeline {
                        sh './mvnw package -DskipTests'
                 }
           }
+          // Étape 4: Analyse SonarQube
+          stage('SonarQube Analysis') {
+                   steps {
+                         withSonarQubeEnv('SonarQube-Server') {
+                             sh 'mvn sonar:sonar -Dsonar.projectKey=kaddem'
+                         }
+                         timeout(time: 10, unit: 'MINUTES') {
+                             waitForQualityGate() // Bloquer si la qualité n'est pas OK
+                         }
+                     }
+          }
     }
 
 
