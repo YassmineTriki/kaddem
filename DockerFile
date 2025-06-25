@@ -1,0 +1,4 @@
+FROM eclipse-temurin:17-jdk-jammy
+WORKDIR /app
+COPY target/*.war app.war  # Copie le .war généré par Maven/Gradle
+ENTRYPOINT ["java", "-jar", "app.war"]  # Correction : "-jar" au lieu de "-war"

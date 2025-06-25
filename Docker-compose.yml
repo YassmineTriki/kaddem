@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  kaddem-app:               # Nom de votre service
+    image: kaddem-app:latest  # Utilise l'image Docker locale (à remplacer plus tard)
+    build: .                # Construit l'image depuis le Dockerfile
+    ports:
+      - "8080:8080"         # Expose le port (ajustez selon votre app)
+    volumes:
+      - ./data:/app/data    # Exemple de volume (optionnel)

@@ -83,17 +83,35 @@ pipeline {
                       def warFile = findFiles(glob: 'target/*.war')[0]
                       echo "Fichier war trouvé : ${warFile.name}"
 
-                      // Crée le Dockerfile dynamiquement
-                      writeFile file: 'Dockerfile', text: """
-                          FROM eclipse-temurin:17-jdk-jammy
-                          WORKDIR /app
-                          COPY ${warFile.path} app.war
-                          ENTRYPOINT ["java", "-war", "app.war"]
-                      """
-
                       // Build l'image
                       docker.build("kaddem-app:${env.BUILD_ID}")
 
+                  }
+              }
+          }
+
+          stage('Generate docker-compose.yml') {
+              steps {
+                  script {
+                      // Crée le fichier docker-compose.yml avec l'image Docker Hub/GHCR
+                      writeFile(
+                          file: 'docker-compose.yml',
+                          text: """
+                          version: '3.8'
+                          services:
+                            kaddem-app:
+                              image: ${DOCKER_IMAGE}:${DOCKER_TAG}  # Ex: "votredockerhub/kaddem-app:latest"
+                              ports:
+                                - "8080:8080"
+                          """
+                      )
+
+                      // Pousse le fichier dans Git (si besoin)
+                      sh """
+                          git add docker-compose.yml
+                          git commit -m "Add docker-compose.yml for version ${DOCKER_TAG}"
+                          git push origin main
+                      """
                   }
               }
           }
