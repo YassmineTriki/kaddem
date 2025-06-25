@@ -56,7 +56,8 @@ pipeline {
           // Étape 5: Nexus
           stage('Deploy to Nexus') {
               steps {
-                  withCredentials([
+                   nexusArtifactUploader artifacts: [[artifactId: 'BACKEND', classifier: '', file: 'target/backend-2.7.5', type: '.war']], credentialsId: 'nexus', groupId: 'org.springframework.boot', nexusUrl: 'localhost:8081/', nexusVersion: 'nexus3', protocol: 'http', repository: 'maven-releases', version: '2.7.5'
+                  /*withCredentials([
                       usernamePassword(
                           credentialsId: 'nexus-credentials', // ID saisi dans Jenkins
                           usernameVariable: 'NEXUS_USER',
@@ -70,7 +71,7 @@ pipeline {
                           -Dusername=$NEXUS_USER \
                           -Dpassword=$NEXUS_PASS
                       '''
-                  }
+                  }*/
               }
           }
     }
