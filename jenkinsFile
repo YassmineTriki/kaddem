@@ -70,21 +70,28 @@ pipeline {
                                 repository: 'maven-snapshots',
                                 version: '0.0.1-SNAPSHOT' // Doit matcher <version>
                     )
-                    /*withCredentials([
-                      usernamePassword(
-                          credentialsId: 'nexus-credentials', // ID saisi dans Jenkins
-                          usernameVariable: 'NEXUS_USER',
-                          passwordVariable: 'NEXUS_PASS'
-                      )
-                  ]) {
-                      sh '''
-                          mvn deploy \
-                          -DaltDeploymentRepository=nexus::default::http://localhost:8081/repository/maven-releases/ \
-                          -DrepositoryId=nexus \
-                          -Dusername=$NEXUS_USER \
-                          -Dpassword=$NEXUS_PASS
-                      '''
-                  }*/
+
+              }
+          }
+          stage('Build Docker Image') {
+              steps {
+                  script {
+                      // Vérifie que le JAR existe
+                      def jarFile = findFiles(glob: 'target/*.jar')[0]
+                      echo "Fichier JAR trouvé : ${jarFile.name}"
+
+                      // Crée le Dockerfile dynamiquement
+                      writeFile file: 'Dockerfile', text: """
+                          FROM eclipse-temurin:17-jdk-jammy
+                          WORKDIR /app
+                          COPY ${jarFile.path} app.jar
+                          ENTRYPOINT ["java", "-jar", "app.jar"]
+                      """
+
+                      // Build l'image
+                      docker.build("kaddem-app:${env.BUILD_ID}")
+
+                  }
               }
           }
     }
