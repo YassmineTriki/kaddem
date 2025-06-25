@@ -105,11 +105,9 @@ pipeline {
                                   git config --global user.email "jenkins@example.com"
                                   git config --global user.name "Jenkins CI"
 
-                                  # Authentification temporaire
-                                  git remote set-url origin https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/YassmineTriki/kaddem.git
 
                                   # Commit et push
-                                  git add docker-compose.yml
+                                  git add Docker-compose.yml
                                   git commit -m "Update image to version ${env.DOCKER_TAG}"
                                   git push origin master
 
