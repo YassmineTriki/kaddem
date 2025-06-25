@@ -97,7 +97,7 @@ pipeline {
                       script {
                           // 1. Mettre à jour la version de l'image dans le docker-compose.yml existant
                           sh """
-                              sed -i 's|image:.*|image: ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}|g' docker-compose.yml
+                              sed -i 's|image:.*|image: ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}|g' Docker-compose.yml
                           """
 
 
