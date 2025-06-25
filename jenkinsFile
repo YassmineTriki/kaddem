@@ -102,9 +102,6 @@ pipeline {
 
 
                               sh """
-                                  git config --global user.email "jenkins@example.com"
-                                  git config --global user.name "Jenkins CI"
-
 
                                   # Commit et push
                                   git add Docker-compose.yml
