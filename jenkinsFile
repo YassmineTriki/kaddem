@@ -54,37 +54,32 @@ pipeline {
                      }
           }
           // Étape 5: Nexus
-         stage('Package') {
-             steps {
-                 sh './mvnw clean package -DskipTests'
-                 // Vérification que le WAR est généré
-                 sh 'ls -l target/*.war'
-             }
-         }
+          stage('Package') {
+              steps {
+                  sh './mvnw clean package -DskipTests'
+                  // Vérification que le WAR est généré
+                  sh 'ls -l target/*.war'
+              }
+          }
+          stage('Deploy to Nexus') {
+              steps {
+                    nexusArtifactUploader(
+                                artifacts: [[
+                                    artifactId: 'kaddem', // Doit matcher <artifactId>
+                                    file: 'target/kaddem-0.0.1-SNAPSHOT.war', // Nom exact
+                                    type: 'war' // Spring Boot génère un .jar par défaut
+                                ]],
+                                credentialsId: 'nexus',
+                                groupId: 'tn.esprit.spring', // Doit matcher <groupId>
+                                nexusUrl: 'localhost:8081',
+                                nexusVersion: 'nexus3',
+                                protocol: 'http',
+                                repository: 'maven-snapshots',
+                                version: '0.0.1-SNAPSHOT' // Doit matcher <version>
+                    )
 
-         stage('Deploy to Nexus') {
-             steps {
-                 script {
-                     // Trouve le fichier WAR généré
-                     def warFile = sh(script: 'ls target/*.war', returnStdout: true).trim()
-
-                     nexusArtifactUploader(
-                         artifacts: [[
-                             artifactId: 'kaddem',
-                             file: warFile,
-                             type: 'war' // Spécifiez bien le type WAR
-                         ]],
-                         credentialsId: 'nexus',
-                         groupId: 'tn.esprit.spring',
-                         nexusUrl: 'localhost:8081',
-                         nexusVersion: 'nexus3',
-                         protocol: 'http',
-                         repository: 'maven-snapshots',
-                         version: '1.0.1-SNAPSHOT' // Doit matcher votre version
-                     )
-                 }
-             }
-         }
+              }
+          }
           stage('Build Docker Image') {
               steps {
                   script {
