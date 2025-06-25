@@ -100,14 +100,7 @@ pipeline {
                               sed -i 's|image:.*|image: ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}|g' docker-compose.yml
                           """
 
-                          // 2. Pousser les changements avec authentification sécurisée
-                        /*  withCredentials([
-                              usernamePassword(
-                                  credentialsId: 'GITHUB_CREDS',
-                                  usernameVariable: 'GIT_USERNAME',
-                                  passwordVariable: 'GIT_PASSWORD'
-                              )
-                          ])*/ {
+
                               sh """
                                   git config --global user.email "jenkins@example.com"
                                   git config --global user.name "Jenkins CI"
@@ -122,8 +115,8 @@ pipeline {
 
                                   # Nettoyage (optionnel)
                                   git remote set-url origin https://github.com/YassmineTriki/kaddem.git
-                              """
-                          }
+                             """
+
                       }
                   }
           }
