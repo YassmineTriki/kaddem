@@ -56,8 +56,21 @@ pipeline {
           // Étape 5: Nexus
           stage('Deploy to Nexus') {
               steps {
-                   nexusArtifactUploader artifacts: [[artifactId: 'BACKEND', classifier: '', file: 'target/backend-2.7.5', type: '.war']], credentialsId: 'nexus', groupId: 'org.springframework.boot', nexusUrl: 'localhost:8081/', nexusVersion: 'nexus3', protocol: 'http', repository: 'maven-releases', version: '2.7.5'
-                  /*withCredentials([
+                    nexusArtifactUploader(
+                                artifacts: [[
+                                    artifactId: 'kaddem', // Doit matcher <artifactId>
+                                    file: 'target/kaddem-0.0.1-SNAPSHOT.jar', // Nom exact
+                                    type: 'jar' // Spring Boot génère un .jar par défaut
+                                ]],
+                                credentialsId: 'nexus',
+                                groupId: 'tn.esprit.spring', // Doit matcher <groupId>
+                                nexusUrl: 'localhost:8081',
+                                nexusVersion: 'nexus3',
+                                protocol: 'http',
+                                repository: 'maven-releases',
+                                version: '0.0.1-SNAPSHOT' // Doit matcher <version>
+                    )
+                    /*withCredentials([
                       usernamePassword(
                           credentialsId: 'nexus-credentials', // ID saisi dans Jenkins
                           usernameVariable: 'NEXUS_USER',
