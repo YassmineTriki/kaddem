@@ -40,10 +40,12 @@ pipeline {
          }
           /* Étape 4 - Packaging final */
           stage('Package') {
-                steps {
-                       sh './mvnw package -DskipTests'
-                }
-          }
+                        steps {
+                            sh './mvnw clean package -DskipTests'
+                            // Vérification que le WAR est généré
+                            sh 'ls -l target/*.war'
+                        }
+                    }
           // Étape 4: Analyse SonarQube
           stage('SonarQube Analysis') {
                    steps {
@@ -54,13 +56,7 @@ pipeline {
                      }
           }
           // Étape 5: Nexus
-          stage('Package') {
-              steps {
-                  sh './mvnw clean package -DskipTests'
-                  // Vérification que le WAR est généré
-                  sh 'ls -l target/*.war'
-              }
-          }
+
           stage('Deploy to Nexus') {
               steps {
                     nexusArtifactUploader(
