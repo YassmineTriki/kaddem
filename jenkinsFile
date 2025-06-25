@@ -93,29 +93,39 @@ pipeline {
           }
 
           stage('Generate docker-compose.yml') {
-              steps {
-                  script {
-                      // Crée le fichier docker-compose.yml avec l'image Docker Hub/GHCR
-                      writeFile(
-                          file: 'docker-compose.yml',
-                          text: """
-                          version: '3.8'
-                          services:
-                            kaddem-app:
-                              image: ${DOCKER_IMAGE}:${DOCKER_TAG}  # Ex: "votredockerhub/kaddem-app:latest"
-                              ports:
-                                - "8080:8080"
+               steps {
+                      script {
+                          // 1. Mettre à jour la version de l'image dans le docker-compose.yml existant
+                          sh """
+                              sed -i 's|image:.*|image: ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}|g' docker-compose.yml
                           """
-                      )
 
-                      // Pousse le fichier dans Git (si besoin)
-                      sh """
-                          git add docker-compose.yml
-                          git commit -m "Add docker-compose.yml for version ${DOCKER_TAG}"
-                          git push origin master
-                      """
+                          // 2. Pousser les changements avec authentification sécurisée
+                        /*  withCredentials([
+                              usernamePassword(
+                                  credentialsId: 'GITHUB_CREDS',
+                                  usernameVariable: 'GIT_USERNAME',
+                                  passwordVariable: 'GIT_PASSWORD'
+                              )
+                          ])*/ {
+                              sh """
+                                  git config --global user.email "jenkins@example.com"
+                                  git config --global user.name "Jenkins CI"
+
+                                  # Authentification temporaire
+                                  git remote set-url origin https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/YassmineTriki/kaddem.git
+
+                                  # Commit et push
+                                  git add docker-compose.yml
+                                  git commit -m "Update image to version ${env.DOCKER_TAG}"
+                                  git push origin master
+
+                                  # Nettoyage (optionnel)
+                                  git remote set-url origin https://github.com/YassmineTriki/kaddem.git
+                              """
+                          }
+                      }
                   }
-              }
           }
     }
 
