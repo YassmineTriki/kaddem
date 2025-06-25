@@ -8,7 +8,6 @@ pipeline {
             // Active le profil 'test' uniquement pour les étapes de test
             TEST_PROFILE = '-Dspring.profiles.active=test'
              DOCKER_IMAGE = "kaddem-app"
-              DOCKER_IMAGE = "yasmine/kaddem-app"  // Pour Docker Hub
         }
     stages {
         // Étape 1 : Récupération du code
