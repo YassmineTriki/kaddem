@@ -99,21 +99,17 @@ pipeline {
                           sh """
                               sed -i 's|image:.*|image: ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}|g' Docker-compose.yml
                           """
+                          sh """
+                             # Commit et push
+                             git add Docker-compose.yml
+                             git commit -m "Update image to version ${env.DOCKER_TAG}"
+                             git push origin master
 
-
-                              sh """
-
-                                  # Commit et push
-                                  git add Docker-compose.yml
-                                  git commit -m "Update image to version ${env.DOCKER_TAG}"
-                                  git push origin master
-
-                                  # Nettoyage (optionnel)
-                                  git remote set-url origin https://github.com/YassmineTriki/kaddem.git
-                             """
-
+                             # Nettoyage (optionnel)
+                             git remote set-url origin https://github.com/YassmineTriki/kaddem.git
+                          """
                       }
-                  }
+               }
           }
     }
 
