@@ -112,7 +112,7 @@ pipeline {
                       sh """
                           git add docker-compose.yml
                           git commit -m "Add docker-compose.yml for version ${DOCKER_TAG}"
-                          git push origin main
+                          git push origin master
                       """
                   }
               }
