@@ -83,16 +83,16 @@ pipeline {
           stage('Build Docker Image') {
               steps {
                   script {
-                      // Vérifie que le JAR existe
-                      def jarFile = findFiles(glob: 'target/*.jar')[0]
-                      echo "Fichier JAR trouvé : ${jarFile.name}"
+                      // Vérifie que le war existe
+                      def warFile = findFiles(glob: 'target/*.war')[0]
+                      echo "Fichier war trouvé : ${warFile.name}"
 
                       // Crée le Dockerfile dynamiquement
                       writeFile file: 'Dockerfile', text: """
                           FROM eclipse-temurin:17-jdk-jammy
                           WORKDIR /app
-                          COPY ${jarFile.path} app.jar
-                          ENTRYPOINT ["java", "-jar", "app.jar"]
+                          COPY ${warFile.path} app.war
+                          ENTRYPOINT ["java", "-war", "app.war"]
                       """
 
                       // Build l'image
