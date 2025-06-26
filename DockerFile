@@ -1,15 +1,14 @@
-# Étape Build - Image minimale avec cache intelligent
 FROM maven:3.9.6-eclipse-temurin-17-alpine as builder
 WORKDIR /build
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
 COPY src src
 RUN mvn clean package -DskipTests \
-    && rm -rf /root/.m2  # Suppression immédiate du cache
+    && rm -rf /root/.m2
 
-# Étape Runtime - Image Distroless ultra-légère
 FROM gcr.io/distroless/java17-debian11
 WORKDIR /app
 COPY --from=builder /build/target/kaddem-*.war app.war
-USER nonroot:nonroot  # Bonnes pratiques de sécurité
+USER nonroot:nonroot
 ENTRYPOINT ["java", "-jar", "app.war"]
+EOF
