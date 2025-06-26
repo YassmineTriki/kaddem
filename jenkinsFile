@@ -79,37 +79,36 @@ pipeline {
               }
           }
 
-         stage('Deploy') {
-                      steps {
-                          script {
-                              // 1. Build de l'image Docker
-                              def dockerImage = docker.build("kaddem-app:${env.BUILD_ID}")
+        stage('Deploy') {
+            steps {
+                script {
+                    // 1. Build de l'image Docker avec le bon format
+                    def dockerImage = docker.build("votreusername/kaddem-app:${env.BUILD_ID}")  // Ajoutez votre nom d'utilisateur Docker Hub
 
-                              // 2. Publication sur le registry (optionnel)
-                              docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB_CREDS') {
-                                  dockerImage.push()
-                              }
+                    // 2. Publication sur Docker Hub (avec vérification des credentials)
+                    docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB_CREDS') {
+                        dockerImage.push()
+                        echo "Image poussée avec succès vers Docker Hub"
+                    }
 
-                              // 3. Mise à jour du docker-compose.yml et déploiement
-                              sh '''
-                                  # Mise à jour de l'image dans le compose file
-                                  sed -i 's|image:.*|image: kaddem-app:'"${BUILD_ID}"'|g' Docker-compose.yml
+                    // 3. Mise à jour et déploiement
+                    sh """
+                        # Mise à jour du docker-compose.yml
+                        sed -i 's|image:.*|image: votreusername/kaddem-app:${env.BUILD_ID}|g' docker-compose.yml
 
-                                  # Arrêt des containers existants
-                                  docker-compose down || true
+                        # Arrêt et nettoyage
+                        docker-compose down || true
+                        docker system prune -f
 
-                                  # Nettoyage des ressources Docker
-                                  docker system prune -f
+                        # Redémarrage
+                        docker-compose up -d --build
 
-                                  # Démarrage des nouveaux containers
-                                  docker-compose up -d --build
-
-                                  # Vérification
-                                  docker-compose ps
-                                  echo "Déploiement terminé avec succès !"
-                              '''
-                          }
-                      }
+                        # Vérification
+                        docker-compose ps
+                        echo "Déploiement terminé avec succès ! Version ${env.BUILD_ID}"
+                    """
+                }
+            }
         }
 
 
