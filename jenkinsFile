@@ -86,13 +86,9 @@ pipeline {
                      def dockerImage = docker.build("yasmine251/kaddem-app:${env.BUILD_ID}")
 
                      // 2. Push avec timeout et réessai automatique
-                     retry(3) {
-                         timeout(time: 10, unit: 'MINUTES') {
-                             docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB_CREDS') {
-                                 dockerImage.push()
-                             }
-                         }
-                     }
+                      docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB_CREDS') {
+                                                     dockerImage.push()
+                                                 }
 
 
                  }
