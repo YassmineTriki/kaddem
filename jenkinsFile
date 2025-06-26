@@ -8,8 +8,6 @@ pipeline {
         TEST_PROFILE = '-Dspring.profiles.active=test'
         DOCKER_IMAGE = "kaddem-app"
         DOCKER_TAG = "${env.BUILD_ID}"
-        SONAR_PROJECT_KEY = "kaddem"
-        NEXUS_URL = "localhost:8081"
     }
     stages {
         // Étape 1: Clonage du projet
@@ -71,24 +69,25 @@ pipeline {
         }
 
         // Étape 6: Déploiement sur Nexus
-        stage('Deploy to Nexus') {
-            steps {
-                nexusArtifactUploader(
-                    artifacts: [[
-                        artifactId: 'kaddem',
-                        file: 'target/kaddem-0.0.1-SNAPSHOT.war',
-                        type: 'war'
-                    ]],
-                    credentialsId: 'nexus-credentials',
-                    groupId: 'tn.esprit.spring',
-                    nexusUrl: "$NEXUS_URL",
-                    nexusVersion: 'nexus3',
-                    protocol: 'http',
-                    repository: 'maven-snapshots',
-                    version: '0.0.1-SNAPSHOT'
-                )
-            }
-        }
+         stage('Nexus') {
+                      steps {
+                            nexusArtifactUploader(
+                                        artifacts: [[
+                                            artifactId: 'kaddem', // Doit matcher <artifactId>
+                                            file: 'target/kaddem-0.0.1-SNAPSHOT.war', // Nom exact
+                                            type: 'war' // Spring Boot génère un .jar par défaut
+                                        ]],
+                                        credentialsId: 'nexus',
+                                        groupId: 'tn.esprit.spring', // Doit matcher <groupId>
+                                        nexusUrl: 'localhost:8081',
+                                        nexusVersion: 'nexus3',
+                                        protocol: 'http',
+                                        repository: 'maven-snapshots',
+                                        version: '0.0.1-SNAPSHOT' // Doit matcher <version>
+                            )
+
+                      }
+                  }
 
         // Étape 7: Construction et déploiement Docker
         stage('Build and Deploy Docker') {
