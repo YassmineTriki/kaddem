@@ -83,7 +83,7 @@ pipeline {
             steps {
                 script {
                     // 1. Build de l'image Docker avec le bon format
-                        def dockerImage = docker.build("yasmine251/kaddem-app:${env.BUILD_ID}", "--no-cache")
+                        def dockerImage = docker.build("yasmine251/kaddem-app:${env.BUILD_ID}", "--no-cache.")
                     // 2. Publication sur Docker Hub (avec vérification des credentials)
                     docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB_CREDS') {
                         dockerImage.push()
