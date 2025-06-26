@@ -1,5 +1,11 @@
 pipeline {
-    agent any
+    agent {
+            docker {
+                label 'docker'  // Correspond au label que vous avez configuré
+                registryUrl 'https://registry.hub.docker.com'
+                registryCredentialsId 'docker'  // ID des credentials Docker
+            }
+        }
     tools {
         jdk 'JDK-17'      // Nom de votre JDK configuré dans Jenkins
         maven 'Maven-3.9'
