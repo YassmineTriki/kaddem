@@ -4,12 +4,12 @@ pipeline {
         jdk 'JDK-17'      // Nom de votre JDK configuré dans Jenkins
         maven 'Maven-3.9'
     }
-      environment {
-            // Active le profil 'test' uniquement pour les étapes de test
-            TEST_PROFILE = '-Dspring.profiles.active=test'
-             DOCKER_IMAGE = "kaddem-app"
-              DOCKER_TAG = "${env.BUILD_ID}"       // Utilise le numéro de build Jenkins comme tag
-        }
+    environment {
+         // Active le profil 'test' uniquement pour les étapes de test
+         TEST_PROFILE = '-Dspring.profiles.active=test'
+         DOCKER_IMAGE = "kaddem-app"
+         DOCKER_TAG = "${env.BUILD_ID}"       // Utilise le numéro de build Jenkins comme tag
+    }
     stages {
         // Étape 1 : Récupération du code
         stage('Checkout Git') {
@@ -78,38 +78,38 @@ pipeline {
 
               }
           }
-          stage('Build Docker Image') {
+
+          stage('Deploy') {
               steps {
                   script {
-                      // Vérifie que le war existe
-                      def warFile = findFiles(glob: 'target/*.war')[0]
-                      echo "Fichier war trouvé : ${warFile.name}"
+                      // 1. Build de l'image Docker
+                      def dockerImage = docker.build("kaddem-app:${env.BUILD_ID}")
 
-                      // Build l'image
-                      docker.build("kaddem-app:${env.BUILD_ID}")
+                      // 2. Publication sur le registry (optionnel)
+                      docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB_CREDS') {
+                          dockerImage.push()
+                      }
 
+                      // 3. Mise à jour du docker-compose.yml et déploiement
+                      sh '''
+                          # Mise à jour de l'image dans le compose file
+                          sed -i 's|image:.*|image: kaddem-app:'"${BUILD_ID}"'|g' Docker-compose.yml
+
+                          # Arrêt des containers existants
+                          docker-compose down || true
+
+                          # Nettoyage des ressources Docker
+                          docker system prune -f
+
+                          # Démarrage des nouveaux containers
+                          docker-compose up -d --build
+
+                          # Vérification
+                          docker-compose ps
+                          echo "Déploiement terminé avec succès !"
+                      '''
                   }
               }
-          }
-
-          stage('Generate docker-compose.yml') {
-               steps {
-                      script {
-                          // 1. Mettre à jour la version de l'image dans le docker-compose.yml existant
-                          sh """
-                              sed -i 's|image:.*|image: ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}|g' Docker-compose.yml
-                          """
-                          sh """
-                             # Commit et push
-                             git add Docker-compose.yml
-                             git commit -m "Update image to version ${env.DOCKER_TAG}"
-                             git push origin master
-
-                             # Nettoyage (optionnel)
-                             git remote set-url origin https://github.com/YassmineTriki/kaddem.git
-                          """
-                      }
-               }
           }
     }
 
