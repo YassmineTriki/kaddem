@@ -62,16 +62,12 @@ pipeline {
 
         // Étape 5: Analyse SonarQube
         stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube-Server') {
-                    sh """
-                        ./mvnw sonar:sonar \\
-                        -Dsonar.projectKey=$SONAR_PROJECT_KEY \\
-                        -Dsonar.host.url=$SONARQUBE_URL \\
-                        -Dsonar.login=$SONARQUBE_TOKEN
-                    """
-                }
-            }
+                           steps {
+                                 withSonarQubeEnv('SonarQube-Server') {
+                                     sh 'mvn sonar:sonar -Dsonar.projectKey=kaddem'
+                                 }
+
+                             }
         }
 
         // Étape 6: Déploiement sur Nexus
