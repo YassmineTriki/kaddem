@@ -82,30 +82,28 @@ pipeline {
          stage('Deploy') {
              steps {
                  script {
-                     // 1. Build de l'image Docker avec le bon format
-                     def dockerImage = docker.build("yasmine251/kaddem-app:${env.BUILD_ID}")  // Ajoutez votre nom d'utilisateur Docker Hub
+                     // 1. Construction et publication de l'image en parallèle
+                     def dockerImage = docker.build("yasmine251/kaddem-app:${env.BUILD_ID}")
 
-                     // 2. Publication sur Docker Hub (avec vérification des credentials)
-                     docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB_CREDS') {
-                         dockerImage.push()
-                         echo "Image poussée avec succès vers Docker Hub"
+                     // 2. Push avec timeout et réessai automatique
+                     retry(3) {
+                         timeout(time: 10, unit: 'MINUTES') {
+                             docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB_CREDS') {
+                                 dockerImage.push()
+                             }
+                         }
                      }
 
-                     // 3. Mise à jour et déploiement
+                     // 3. Déploiement optimisé
                      sh """
-                         # Mise à jour du docker-compose.yml
+                         # Mise à jour atomique du compose file
                          sed -i 's|image:.*|image: votreusername/kaddem-app:${env.BUILD_ID}|g' docker-compose.yml
 
-                         # Arrêt et nettoyage
-                         docker-compose down || true
-                         docker system prune -f
+                         # Redéploiement rapide (supprime seulement les containers concernés)
+                         docker-compose up -d --force-recreate --no-deps app
 
-                         # Redémarrage
-                         docker-compose up -d --build
-
-                         # Vérification
-                         docker-compose ps
-                         echo "Déploiement terminé avec succès ! Version ${env.BUILD_ID}"
+                         # Nettoyage intelligent (seulement les anciennes images de notre application)
+                         docker image prune -f --filter="label=maintainer=kaddem" --filter="until=24h"
                      """
                  }
              }
