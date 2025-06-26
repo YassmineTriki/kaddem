@@ -94,17 +94,7 @@ pipeline {
                          }
                      }
 
-                     // 3. Déploiement optimisé
-                     sh """
-                         # Mise à jour atomique du compose file
-                         sed -i 's|image:.*|image: votreusername/kaddem-app:${env.BUILD_ID}|g' docker-compose.yml
 
-                         # Redéploiement rapide (supprime seulement les containers concernés)
-                         docker-compose up -d --force-recreate --no-deps app
-
-                         # Nettoyage intelligent (seulement les anciennes images de notre application)
-                         docker image prune -f --filter="label=maintainer=kaddem" --filter="until=24h"
-                     """
                  }
              }
          }
