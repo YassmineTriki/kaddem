@@ -59,7 +59,7 @@ pipeline {
           }
           // Étape 5: Nexus
 
-          stage('Deploy to Nexus') {
+          stage('Nexus') {
               steps {
                     nexusArtifactUploader(
                                 artifacts: [[
@@ -83,9 +83,12 @@ pipeline {
             steps {
                 script {
                     // 1. Build de l'image Docker avec le bon format
+                      sh 'pwd && ls -l Dockerfile'
                       def dockerImage = docker.build("yasmine251/kaddem-app:${env.BUILD_ID}", ".")
+
                     // 2. Publication sur Docker Hub (avec vérification des credentials)
                     docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB_CREDS') {
+
                         dockerImage.push()
                         echo "Image poussée avec succès vers Docker Hub"
                     }
