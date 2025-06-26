@@ -79,25 +79,37 @@ pipeline {
               }
           }
 
-        stage('Deploy') {
-            steps {
-                script {
-                    def dockerImage = docker.build("yasmine251/kaddem-app:${env.BUILD_ID}")
+         stage('Deploy') {
+                      steps {
+                          script {
+                              // 1. Build de l'image Docker
+                              def dockerImage = docker.build("kaddem-app:${env.BUILD_ID}")
 
-                    docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB_CREDS') {
-                        try {
-                            timeout(time: 5, unit: 'MINUTES') {
-                                dockerImage.push()
-                            }
-                            echo "Image pushed successfully."
-                        } catch (e) {
-                            echo "Image push failed or timed out: ${e.message}"
-                            currentBuild.result = 'FAILURE'
-                            error("Stopping pipeline due to Docker push failure.")
-                        }
-                    }
-                }
-            }
+                              // 2. Publication sur le registry (optionnel)
+                              docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB_CREDS') {
+                                  dockerImage.push()
+                              }
+
+                              // 3. Mise à jour du docker-compose.yml et déploiement
+                              sh '''
+                                  # Mise à jour de l'image dans le compose file
+                                  sed -i 's|image:.*|image: kaddem-app:'"${BUILD_ID}"'|g' Docker-compose.yml
+
+                                  # Arrêt des containers existants
+                                  docker-compose down || true
+
+                                  # Nettoyage des ressources Docker
+                                  docker system prune -f
+
+                                  # Démarrage des nouveaux containers
+                                  docker-compose up -d --build
+
+                                  # Vérification
+                                  docker-compose ps
+                                  echo "Déploiement terminé avec succès !"
+                              '''
+                          }
+                      }
         }
 
 
