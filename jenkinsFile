@@ -79,21 +79,27 @@ pipeline {
               }
           }
 
-         stage('Deploy') {
-             steps {
-                 script {
-                     // 1. Construction et publication de l'image en parallèle
-                     def dockerImage = docker.build("yasmine251/kaddem-app:${env.BUILD_ID}")
+        stage('Deploy') {
+            steps {
+                script {
+                    def dockerImage = docker.build("yasmine251/kaddem-app:${env.BUILD_ID}")
 
-                     // 2. Push avec timeout et réessai automatique
-                      docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB_CREDS') {
-                                                     dockerImage.push()
-                                                 }
+                    docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB_CREDS') {
+                        try {
+                            timeout(time: 5, unit: 'MINUTES') {
+                                dockerImage.push()
+                            }
+                            echo "Image pushed successfully."
+                        } catch (e) {
+                            echo "Image push failed or timed out: ${e.message}"
+                            currentBuild.result = 'FAILURE'
+                            error("Stopping pipeline due to Docker push failure.")
+                        }
+                    }
+                }
+            }
+        }
 
-
-                 }
-             }
-         }
 
     }
 
