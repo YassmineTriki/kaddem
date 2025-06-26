@@ -95,7 +95,7 @@ pipeline {
 
                    // 1. Construction avec vérification explicite
                    sh """
-                       if [ ! -f Dockerfile ]; then
+                       if [ ! -f dockerFile ]; then
                            echo "ERREUR: Dockerfile introuvable!"
                            exit 1
                        fi
