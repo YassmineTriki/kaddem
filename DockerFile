@@ -1,17 +1,15 @@
-# Étape de build - Utilisation d'une image Maven plus légère
+# Étape Build - Image minimale avec cache intelligent
 FROM maven:3.9.6-eclipse-temurin-17-alpine as builder
 WORKDIR /build
 COPY pom.xml .
-# Télécharge d'abord les dépendances (cache efficace)
-RUN mvn dependency:go-offline
+RUN mvn dependency:go-offline -B
 COPY src src
-RUN mvn clean package -DskipTests -Dmaven.javadoc.skip=true
+RUN mvn clean package -DskipTests \
+    && rm -rf /root/.m2  # Suppression immédiate du cache
 
-# Étape runtime - Image ultra-légère
-FROM eclipse-temurin:17-jre-alpine
+# Étape Runtime - Image Distroless ultra-légère
+FROM gcr.io/distroless/java17-debian11
 WORKDIR /app
-# Copie uniquement le fichier WAR nécessaire
-COPY --from=builder /build/target/*.war app.war
-# Optimisation JVM pour les conteneurs
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75%"
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.war"]
+COPY --from=builder /build/target/kaddem-*.war app.war
+USER nonroot:nonroot  # Bonnes pratiques de sécurité
+ENTRYPOINT ["java", "-jar", "app.war"]
