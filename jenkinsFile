@@ -83,7 +83,7 @@ pipeline {
             steps {
                 script {
                     // 1. Build de l'image Docker avec le bon format
-                      sh 'pwd && ls -l Dockerfile'
+
                       def dockerImage = docker.build("yasmine251/kaddem-app:${env.BUILD_ID}", ".")
 
                     // 2. Publication sur Docker Hub (avec vérification des credentials)

@@ -1,11 +1,17 @@
--------- Build -------------------------------------------
-FROM maven:3.9.6-eclipse-temurin-17 as builder
+# Étape de build - Utilisation d'une image Maven plus légère
+FROM maven:3.9.6-eclipse-temurin-17-alpine as builder
 WORKDIR /build
-COPY . .
-RUN mvn clean package -DskipTests
+COPY pom.xml .
+# Télécharge d'abord les dépendances (cache efficace)
+RUN mvn dependency:go-offline
+COPY src src
+RUN mvn clean package -DskipTests -Dmaven.javadoc.skip=true
 
----- Runtime ------------------------------------------
-FROM eclipse-temurin:17-jre-slim
+# Étape runtime - Image ultra-légère
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
+# Copie uniquement le fichier WAR nécessaire
 COPY --from=builder /build/target/*.war app.war
-ENTRYPOINT ["java", "-jar", "app.war"]
+# Optimisation JVM pour les conteneurs
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75%"
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.war"]
