@@ -1,4 +1,11 @@
-FROM eclipse-temurin:17-jdk-jammy
+-------- Build -------------------------------------------
+FROM maven:3.9.6-eclipse-temurin-17 as builder
+WORKDIR /build
+COPY . .
+RUN mvn clean package -DskipTests
+
+---- Runtime ------------------------------------------
+FROM eclipse-temurin:17-jre-slim
 WORKDIR /app
-COPY target/*.war app.war  # Copie le .war généré par Maven/Gradle
-ENTRYPOINT ["java", "-jar", "app.war"]  # Correction : "-jar" au lieu de "-war"
+COPY --from=builder /build/target/*.war app.war
+ENTRYPOINT ["java", "-jar", "app.war"]
