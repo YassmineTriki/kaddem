@@ -79,35 +79,42 @@ pipeline {
               }
           }
 
-        stage('Build and Push Docker Image') {
+        stage('Build and Deploy') {
             steps {
                 script {
-                    // 1. Construction de l'image avec la nouvelle méthode
+                    // Configuration des variables
                     def IMAGE_NAME = "yasmine251/kaddem-app"
                     def IMAGE_TAG = env.BUILD_ID
 
-                    // Build avec gestion d'erreur
-                    bat "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                    // 1. Construction de l'image Docker (compatible WSL/Windows)
+                    sh """
+                        docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                    """
 
-                    // 2. Push conditionnel vers Docker Hub
+                    // 2. Publication optionnelle sur Docker Hub
                     if (env.DOCKER_REGISTRY) {
-                        def fullImageName = "${env.DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
-                        bat "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${fullImageName}"
-
                         docker.withRegistry("https://${env.DOCKER_REGISTRY}", 'DOCKER_HUB_CREDS') {
-                            bat "docker push ${fullImageName}"
+                            sh """
+                                docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${env.DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+                                docker push ${env.DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+                            """
                         }
                     }
 
-                    // 3. Déploiement (partie existante conservée)
+                    // 3. Déploiement avec docker-compose (universel)
                     sh """
+                        # Mise à jour de l'image dans docker-compose.yml
                         sed -i 's|image:.*|image: ${IMAGE_NAME}:${IMAGE_TAG}|g' docker-compose.yml
+
+                        # Redémarrage des containers
                         docker-compose down || true
                         docker system prune -f
                         docker-compose up -d --build
+
+                        # Vérification
                         docker-compose ps
+                        echo "Déploiement réussi! Version ${IMAGE_TAG}"
                     """
-                    echo "Déploiement terminé avec succès ! Version ${IMAGE_TAG}"
                 }
             }
         }
