@@ -89,7 +89,7 @@ pipeline {
                    sh """
                        echo "Contenu du répertoire :"
                        ls -la
-                       echo "Recherche du Dockerfile..."
+                       echo "Recherche du dockerFile..."
                        find . -name dockerFile -o -name docker-compose.yml
                    """
 
