@@ -84,6 +84,8 @@ public class Contrat implements Serializable{
     public Integer getMontantContrat() {
         return montantContrat;
     }
+
+
     public void setMontantContrat(Integer montantContrat) {
         this.montantContrat = montantContrat;
     }

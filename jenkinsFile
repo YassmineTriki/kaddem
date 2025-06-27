@@ -4,12 +4,13 @@ pipeline {
         jdk 'JDK-17'      // Nom de votre JDK configuré dans Jenkins
         maven 'Maven-3.9'
     }
-    environment {
-         // Active le profil 'test' uniquement pour les étapes de test
-         TEST_PROFILE = '-Dspring.profiles.active=test'
-         DOCKER_IMAGE = "kaddem-app"
-         DOCKER_TAG = "${env.BUILD_ID}"       // Utilise le numéro de build Jenkins comme tag
-    }
+     environment {
+            TEST_PROFILE = '-Dspring.profiles.active=test'
+            IMAGE_NAME = 'kaddemBack'
+            IMAGE_TAG = 'latest'
+            DOCKER_REGISTRY = '' // exemple: 'dockerhub' ou vide si pas de push
+        }
+
     stages {
         // Étape 1 : Récupération du code
         stage('Checkout Git') {
@@ -79,49 +80,28 @@ pipeline {
               }
           }
 
-       stage('Build and Deploy') {
-           steps {
-               script {
-                   def IMAGE_NAME = "yasmine251/kaddem-app"
-                   def IMAGE_TAG = env.BUILD_ID
+       stage('Build Docker Image') {
+                  steps {
+                      script {
+                          bat "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                      }
+                  }
+              }
 
-                   // Vérification préalable
-                   sh """
-                       echo "Contenu du répertoire :"
-                       ls -la
-                       echo "Recherche du dockerFile..."
-                       find . -name dockerFile -o -name docker-compose.yml
-                   """
-
-                   // 2. Publication optionnelle
-                   if (env.DOCKER_REGISTRY) {
-                       docker.withRegistry("https://${env.DOCKER_REGISTRY}", 'DOCKER_HUB_CREDS') {
-                           sh """
-                               docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${env.DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-                               docker push ${env.DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-                           """
-                       }
-                   }
-
-                   // 3. Déploiement sécurisé
-                   sh """
-
-
-                       # Modification atomique
-                       cp docker-compose.yml docker-compose.tmp
-                       sed 's|image:.*|image: ${IMAGE_NAME}:${IMAGE_TAG}|g' docker-compose.tmp > docker-compose.yml
-                       rm docker-compose.tmp
-
-                       # Redémarrage
-                       docker-compose down || true
-                       docker system prune -f
-                       docker-compose up -d --build
-                       docker-compose ps
-                   """
-                   echo "Déploiement réussi! Version ${IMAGE_TAG}"
-               }
-           }
-       }
+       stage('Optional: Push Docker Image') {
+                  when {
+                       expression { return env.DOCKER_REGISTRY?.trim() }
+                  }
+                  steps {
+                            script {
+                                def fullImage = "${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                                bat "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${fullImage}"
+                                docker.withRegistry("https://${DOCKER_REGISTRY}", 'DOCKER_HUB_CREDS') {
+                                    bat "docker push ${fullImage}"
+                                }
+                            }
+                        }
+                  }
 
     }
 
