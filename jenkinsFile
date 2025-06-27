@@ -86,16 +86,7 @@ pipeline {
 
               }
           }
-
-       stage('Build Docker Image') {
-                  steps {
-                      script {
-                          sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-                      }
-                  }
-              }
-
-      stage('docker login') {
+ stage('docker login') {
           steps {
               withCredentials([usernamePassword(
                   credentialsId: 'DOCKER_HUB_CREDS',  // ID de vos credentials dans Jenkins
@@ -108,6 +99,15 @@ pipeline {
               }
           }
       }
+       stage('Build Docker Image') {
+                  steps {
+                      script {
+                          sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                      }
+                  }
+              }
+
+
 
       stage('docker build and push') {
           steps {
