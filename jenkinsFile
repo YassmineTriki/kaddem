@@ -94,16 +94,19 @@ pipeline {
                script {
                    // Accéder aux variables via env. pour les variables d'environnement
                    def fullImage = "${env.DOCKER_REGISTRY ? env.DOCKER_REGISTRY + '/' : ''}${env.IMAGE_NAME}:${env.IMAGE_TAG}"
-
+  sh "docker tag ${env.IMAGE_NAME}:${env.IMAGE_TAG} ${fullImage}"
+                       docker.withRegistry("https://${env.DOCKER_REGISTRY}", 'DOCKER_HUB_CREDS') {
+                           sh "docker push ${fullImage}"
+                       }
                    // Condition pour éviter l'erreur si DOCKER_REGISTRY est vide
-                   if (env.DOCKER_REGISTRY) {
+                   /*if (env.DOCKER_REGISTRY) {
                        sh "docker tag ${env.IMAGE_NAME}:${env.IMAGE_TAG} ${fullImage}"
                        docker.withRegistry("https://${env.DOCKER_REGISTRY}", 'DOCKER_HUB_CREDS') {
                            sh "docker push ${fullImage}"
                        }
                    } else {
                        echo "Aucun registry Docker spécifié, skip du push"
-                   }
+                   }*/
                }
            }
         }
