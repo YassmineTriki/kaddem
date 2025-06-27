@@ -8,7 +8,7 @@ pipeline {
             TEST_PROFILE = '-Dspring.profiles.active=test'
             IMAGE_NAME = 'kaddemback'
             IMAGE_TAG = 'latest'
-            DOCKER_REGISTRY = 'docker.io' // exemple: 'dockerhub' ou vide si pas de push
+            DOCKER_REGISTRY = 'docker' // exemple: 'dockerhub' ou vide si pas de push
         }
 
     stages {
