@@ -102,7 +102,7 @@ pipeline {
                                             docker tag ${env.IMAGE_NAME}:${env.IMAGE_TAG} ${fullImage}
 
                                         """
-                     docker.withRegistry("docker.io", 'DOCKER_HUB_CREDS') {
+                     docker.withRegistry("https://${DOCKER_REGISTRY}", 'DOCKER_HUB_CREDS') {
                                                   sh "docker push ${fullImage}"
                                               }
 
