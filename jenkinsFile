@@ -98,10 +98,14 @@ pipeline {
             steps {
                 script {
                     def fullImage = "${env.DOCKER_REGISTRY}/${env.IMAGE_NAME}:${env.IMAGE_TAG}"
-                    sh """
-                        docker tag ${env.IMAGE_NAME}:${env.IMAGE_TAG} ${fullImage}
-                        docker push ${fullImage}
-                    """
+                     sh """
+                                            docker tag ${env.IMAGE_NAME}:${env.IMAGE_TAG} ${fullImage}
+
+                                        """
+                     docker.withRegistry("docker.io", 'DOCKER_HUB_CREDS') {
+                                                  sh "docker push ${fullImage}"
+                                              }
+
                 }
             }
         }
