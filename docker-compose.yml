@@ -1,9 +1,19 @@
 version: '3.8'
+
 services:
-  kaddem-app:               # Nom de votre service
-    image: kaddem-app:latest  # Utilise l'image Docker locale (à remplacer plus tard)
-    build: .                # Construit l'image depuis le Dockerfile
+  app:
+    build: .
+    container_name: container-projet-app
     ports:
-      - "8080:8080"         # Expose le port (ajustez selon votre app)
-    volumes:
-      - ./data:/app/data    # Exemple de volume (optionnel)
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:h2:mem:testdb
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD: ""
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_H2_CONSOLE_ENABLED: "true"
+      SPRING_H2_CONSOLE_PATH: /h2-console
+      SERVER_SERVLET_CONTEXT_PATH: /demo
+      SERVER_PORT: 8080
