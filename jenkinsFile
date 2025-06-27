@@ -31,22 +31,22 @@ pipeline {
                   sh './mvnw clean compile -DskipTests'
               }
         }
-        /* Étape 3 - Tests Unitaires (nouveau)
-         stage('Unit Tests') {
-                    steps {
-                         sh """
-                         ./mvnw test $TEST_PROFILE \
-                         -Dspring.datasource.url=jdbc:h2:mem:testdb \
-                         -Dspring.jpa.hibernate.ddl-auto=create-drop
-                         """
-                    }
-                    post {
-                        always {
-                            junit '**/target/surefire-reports/*.xml'  // Publie les rapports JUnit
-                              archiveArtifacts artifacts: '**/target/surefire-reports/*.txt', allowEmptyArchive: true
-                        }
-                    }
-         }*/
+        /* Étape 3 - Tests Unitaires (nouveau)*/
+         //stage('Unit Tests') {
+                    //steps {
+                         //sh """
+                        // ./mvnw test $TEST_PROFILE \
+                         //-Dspring.datasource.url=jdbc:h2:mem:testdb \
+                         //-Dspring.jpa.hibernate.ddl-auto=create-drop
+                         //"""
+                   // }
+                    //post {
+                       // always {
+                            //junit '**/target/surefire-reports/*.xml'  // Publie les rapports JUnit
+                           //   archiveArtifacts artifacts: '**/target/surefire-reports/*.txt', allowEmptyArchive: true
+                        //}
+                   // }
+         //}
           /* Étape 4 - Packaging final */
           stage('Package') {
                         steps {
@@ -54,7 +54,7 @@ pipeline {
                             // Vérification que le WAR est généré
                             sh 'ls -l target/*.war'
                         }
-                    }
+          }
           // Étape 4: Analyse SonarQube
          /* stage('SonarQube Analysis') {
                    steps {
@@ -94,7 +94,7 @@ pipeline {
                   }
               }
 
-       stage('Push Docker Image') {
+      stage('Push Docker Image') {
 
                   steps {
                             script {
