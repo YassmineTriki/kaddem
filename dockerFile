@@ -1,22 +1,4 @@
-# Étape de construction
-FROM maven:3.9.6-eclipse-temurin-17-alpine as builder
-WORKDIR /build
-COPY pom.xml .
-COPY src src
-RUN mvn clean package -DskipTests
-
-# Étape d'exécution
-FROM eclipse-temurin:17-jre-alpine
-WORKDIR /app
-
-# Copie du WAR depuis le builder
-COPY --from=builder /build/target/demoproduit-*.war app.war
-
-# Configuration de sécurité
-RUN addgroup -S spring && adduser -S spring -G spring
-USER spring:spring
-
-# Optimisation JVM pour conteneurs
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75%"
-
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.war"]
+FROM openjdk:17-jdk-slim
+VOLUME /tmp
+COPY target/kaddem-0.0.1-SNAPSHOT.war app.war
+ENTRYPOINT ["java", "-jar", "/app.war"]
