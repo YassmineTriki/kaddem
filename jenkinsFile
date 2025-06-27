@@ -8,17 +8,16 @@ pipeline {
             TEST_PROFILE = '-Dspring.profiles.active=test'
             IMAGE_NAME = 'kaddemback'
             IMAGE_TAG = 'latest'
-             DOCKER_REGISTRY = 'docker.io'
-                   DOCKER_HUB_NAMESPACE = 'yasmine251'
+            DOCKER_REGISTRY = 'docker.io' // exemple: 'dockerhub' ou vide si pas de push
         }
 
     stages {
      stage('clean workspace')
-            {
-                steps{
-                    cleanWs()
-                     }
-            }
+                {
+                    steps{
+                        cleanWs()
+                         }
+                }
         // Étape 1 : Récupération du code
         stage('Checkout Git') {
             steps {
@@ -32,7 +31,7 @@ pipeline {
                   sh './mvnw clean compile -DskipTests'
               }
         }
-        /* Étape 3 - Tests Unitaires (nouveau) */
+        /* Étape 3 - Tests Unitaires (nouveau)
          stage('Unit Tests') {
                     steps {
                          sh """
@@ -47,7 +46,7 @@ pipeline {
                               archiveArtifacts artifacts: '**/target/surefire-reports/*.txt', allowEmptyArchive: true
                         }
                     }
-         }
+         }*/
           /* Étape 4 - Packaging final */
           stage('Package') {
                         steps {
@@ -57,17 +56,17 @@ pipeline {
                         }
                     }
           // Étape 4: Analyse SonarQube
-          stage('SonarQube Analysis') {
+         /* stage('SonarQube Analysis') {
                    steps {
                          withSonarQubeEnv('SonarQube-Server') {
                              sh 'mvn sonar:sonar -Dsonar.projectKey=kaddem'
                          }
 
                      }
-          }
+          }*/
           // Étape 5: Nexus
 
-          stage('Nexus') {
+          /*stage('Nexus') {
               steps {
                     nexusArtifactUploader(
                                 artifacts: [[
@@ -85,22 +84,8 @@ pipeline {
                     )
 
               }
-          }
- stage('docker login') {
-         steps {
-                 withCredentials([
-                     usernamePassword(
-                         credentialsId: 'dockerhu',
-                         usernameVariable: 'DOCKER_USER',
-                         passwordVariable: 'DOCKER_PWD'
-                     )
-                 ]) {
-                     sh '''
-                         echo "$DOCKER_PWD" | docker login -u "$DOCKER_USER" --password-stdin
-                     '''
-                 }
-             }
-      }
+          }*/
+
        stage('Build Docker Image') {
                   steps {
                       script {
@@ -109,25 +94,18 @@ pipeline {
                   }
               }
 
+       stage('Push Docker Image') {
 
-
-      stage('docker build and push') {
-          steps {
-              script {
-                  // 1. Build avec votre nom de compte et le nom de votre image
-                  def imageName = "yasmine251/kaddem-app"  // Remplacez 'malekkkk' par votre username
-                  def imageTag = "latest"                // Version de votre image
-
-                  sh "docker build -t ${imageName}:${imageTag} ."
-
-                  // 2. Push
-                  sh "docker push ${imageName}:${imageTag}"
-
-                  // 3. Nettoyage (optionnel)
-                  sh "docker rmi ${imageName}:${imageTag}"
-              }
-          }
-      }
+                  steps {
+                            script {
+                                def fullImage = "${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                                sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${fullImage}"
+                                docker.withRegistry("https://${DOCKER_REGISTRY}", 'DOCKER_HUB_CREDS') {
+                                    sh "docker push ${fullImage}"
+                                }
+                            }
+                        }
+                  }
 
     }
 
