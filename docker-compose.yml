@@ -2,8 +2,10 @@ version: '3.8'
 
 services:
   app:
-    build: .
-    container_name: container-projet-app
+    build:
+      context: .
+      dockerfile: Dockerfile  # Spécification explicite
+    image: yasmine251/kaddem-app:${TAG:-latest}
     ports:
       - "8080:8080"
     environment:
