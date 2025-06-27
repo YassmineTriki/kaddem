@@ -83,7 +83,7 @@ pipeline {
        stage('Build Docker Image') {
                   steps {
                       script {
-                          bat "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                          sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
                       }
                   }
               }
@@ -95,9 +95,9 @@ pipeline {
                   steps {
                             script {
                                 def fullImage = "${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
-                                bat "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${fullImage}"
+                                sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${fullImage}"
                                 docker.withRegistry("https://${DOCKER_REGISTRY}", 'DOCKER_HUB_CREDS') {
-                                    bat "docker push ${fullImage}"
+                                    sh "docker push ${fullImage}"
                                 }
                             }
                         }
