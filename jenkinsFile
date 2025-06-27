@@ -6,9 +6,8 @@ pipeline {
     }
      environment {
             TEST_PROFILE = '-Dspring.profiles.active=test'
-            IMAGE_NAME = 'kaddemback'
+            IMAGE_NAME = 'yasmine251/kaddemback'
             IMAGE_TAG = 'latest'
-             DOCKER_NAMESPACE = 'yasmine251'
             DOCKER_REGISTRY = 'docker' // exemple: 'dockerhub' ou vide si pas de push
         }
 
@@ -90,7 +89,7 @@ pipeline {
        stage('Build Docker Image') {
                   steps {
                       script {
-                         sh "docker build -t ${env.DOCKER_NAMESPACE}/${env.IMAGE_NAME}:${env.IMAGE_TAG}"
+                         sh "docker build -t ${env.IMAGE_NAME}:${env.IMAGE_TAG}"
                       }
                   }
               }
@@ -99,9 +98,9 @@ pipeline {
 
                   steps {
                              script {
-                                def fullImage = "${env.DOCKER_REGISTRY}/${env.DOCKER_NAMESPACE}/${env.IMAGE_NAME}:${env.IMAGE_TAG}"                                                         sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${fullImage}"
+                                def fullImage = "${env.DOCKER_REGISTRY}/${env.IMAGE_NAME}:${env.IMAGE_TAG}"                                                         sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${fullImage}"
                                                  sh """
-                                                                    docker tag ${env.DOCKER_NAMESPACE}/${env.IMAGE_NAME}:${env.IMAGE_TAG} ${fullImage}
+                                                                    docker tag ${env.IMAGE_NAME}:${env.IMAGE_TAG} ${fullImage}
                                                                     docker push ${fullImage}
                                                                 """
 
