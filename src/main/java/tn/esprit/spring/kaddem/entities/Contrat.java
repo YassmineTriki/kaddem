@@ -66,6 +66,8 @@ public class Contrat implements Serializable{
     public Date getDateFinContrat() {
         return dateFinContrat;
     }
+
+
     public void setDateFinContrat(Date dateFinContrat) {
         this.dateFinContrat = dateFinContrat;
     }
