@@ -1,3 +1,4 @@
+echo "Registry: ${env.DOCKER_REGISTRY}"
 pipeline {
     agent any
     tools {
