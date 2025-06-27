@@ -8,6 +8,7 @@ pipeline {
             TEST_PROFILE = '-Dspring.profiles.active=test'
             IMAGE_NAME = 'kaddemback'
             IMAGE_TAG = 'latest'
+             DOCKER_NAMESPACE = 'yasmine251'
             DOCKER_REGISTRY = 'docker' // exemple: 'dockerhub' ou vide si pas de push
         }
 
@@ -86,24 +87,23 @@ pipeline {
               }
           }*/
 
-       /*stage('Build Docker Image') {
+       stage('Build Docker Image') {
                   steps {
                       script {
-                          sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                         sh "docker build -t ${env.DOCKER_NAMESPACE}/${env.IMAGE_NAME}:${env.IMAGE_TAG}
                       }
                   }
-              }*/
+              }
 
       stage('Push Docker Image') {
 
                   steps {
                              script {
-                                                      def fullImage = "${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
-                                                      sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${fullImage}"
-                                                      withDockerRegistry([credentialsId: 'DOCKER_HUB_CREDS', url: 'https://docker.io']) {
-                                                          sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin docker.io'
-                                                       sh "docker push ${fullImage}"
-                                                      }
+                                def fullImage = "${env.DOCKER_REGISTRY}/${env.DOCKER_NAMESPACE}/${env.IMAGE_NAME}:${env.IMAGE_TAG}"                                                         sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${fullImage}"
+                                                 sh """
+                                                                    docker tag ${env.DOCKER_NAMESPACE}/${env.IMAGE_NAME}:${env.IMAGE_TAG} ${fullImage}
+                                                                    docker push ${fullImage}
+                                                                """
 
                                                   }
                         }
