@@ -95,17 +95,37 @@ pipeline {
                   }
               }
 
-       stage('Build and Push') {
-                   steps {
-                       script {
-                           docker.withRegistry('https://registry.hub.docker.com', 'yasmine251-credentials') {
-                               def imageName = "${env.DOCKER_HUB_NAMESPACE}/kaddemback:latest"
-                               docker.build(imageName)
-                               docker.image(imageName).push()
-                           }
-                       }
-                   }
-               }
+      stage('docker login') {
+          steps {
+              withCredentials([usernamePassword(
+                  credentialsId: 'DOCKER_HUB_CREDS',  // ID de vos credentials dans Jenkins
+                  usernameVariable: 'yasmine251',  // Votre username Docker Hub
+                  passwordVariable: 'yasmine'   // Votre token Docker Hub
+              )]) {
+                  sh '''
+                      echo "$DOCKER_PWD" | docker login -u "$DOCKER_USER" --password-stdin
+                  '''
+              }
+          }
+      }
+
+      stage('docker build and push') {
+          steps {
+              script {
+                  // 1. Build avec votre nom de compte et le nom de votre image
+                  def imageName = "yasmine251/kaddem-app"  // Remplacez 'malekkkk' par votre username
+                  def imageTag = "latest"                // Version de votre image
+
+                  sh "docker build -t ${imageName}:${imageTag} ."
+
+                  // 2. Push
+                  sh "docker push ${imageName}:${imageTag}"
+
+                  // 3. Nettoyage (optionnel)
+                  sh "docker rmi ${imageName}:${imageTag}"
+              }
+          }
+      }
 
     }
 
