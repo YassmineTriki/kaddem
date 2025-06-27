@@ -1,4 +1,3 @@
-echo "Registry: ${env.DOCKER_REGISTRY}"
 pipeline {
     agent any
     tools {
@@ -9,8 +8,8 @@ pipeline {
             TEST_PROFILE = '-Dspring.profiles.active=test'
             IMAGE_NAME = 'kaddemback'
             IMAGE_TAG = 'latest'
-            DOCKER_REGISTRY = 'docker.io' // exemple: 'dockerhub' ou vide si pas de push
-            DOCKER_HUB_NAMESPACE = 'yasmine251'
+             DOCKER_REGISTRY = 'docker.io'
+                   DOCKER_HUB_NAMESPACE = 'yasmine251'
         }
 
     stages {
@@ -90,17 +89,18 @@ pipeline {
                   }
               }
 
-       stage('Push Docker Image') {
-            steps {
-                           script {
-                               docker.withRegistry('https://registry.hub.docker.com', 'yasmine251-credentials') {
-                                   def imageName = "${env.DOCKER_HUB_NAMESPACE}/mon-app:latest"
-                                   docker.build(imageName)
-                                   docker.image(imageName).push()
-                               }
-                            }
-            }
-        }
+       stage('Build and Push') {
+                   steps {
+                       script {
+                           docker.withRegistry('https://registry.hub.docker.com', 'yasmine251-credentials') {
+                               def imageName = "${env.DOCKER_HUB_NAMESPACE}/kaddemback:latest"
+                               docker.build(imageName)
+                               docker.image(imageName).push()
+                           }
+                       }
+                   }
+               }
+
     }
 
 
