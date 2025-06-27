@@ -97,13 +97,13 @@ pipeline {
       stage('Push Docker Image') {
 
                   steps {
-                            script {
-                                def fullImage = "${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
-                                sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${fullImage}"
-                                docker.withRegistry("https://registry.hub.docker.com", 'DOCKER_HUB_CREDS') {
-                                    sh "docker push ${fullImage}"
-                                }
-                            }
+                             script {
+                                                      def fullImage = "${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                                                      sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${fullImage}"
+                                                      docker.withRegistry("https://${DOCKER_REGISTRY}", 'DOCKER_HUB_CREDS') {
+                                                          sh "docker push ${fullImage}"
+                                                      }
+                                                  }
                         }
                   }
 
