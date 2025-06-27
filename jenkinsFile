@@ -86,29 +86,26 @@ pipeline {
               }
           }*/
 
-       stage('Build Docker Image') {
+       /*stage('Build Docker Image') {
                   steps {
                       script {
                          sh "docker build -t ${env.IMAGE_NAME}:${env.IMAGE_TAG} ."
                       }
                   }
-              }
+              }*/
 
-      stage('Push Docker Image') {
-
-                  steps {
-                             script {
-                                def fullImage = "${env.DOCKER_REGISTRY}/${env.IMAGE_NAME}:${env.IMAGE_TAG}"                                                         sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${fullImage}"
-                                                 sh """
-                                                                    docker tag ${env.IMAGE_NAME}:${env.IMAGE_TAG} ${fullImage}
-                                                                    docker push ${fullImage}
-                                                                """
-
-                                                  }
-                        }
-                  }
-
-    }
+  stage('Push Docker Image') {
+            steps {
+                script {
+                    def fullImage = "${env.DOCKER_REGISTRY}/${env.IMAGE_NAME}:${env.IMAGE_TAG}"
+                    sh """
+                        docker tag ${env.IMAGE_NAME}:${env.IMAGE_TAG} ${fullImage}
+                        docker push ${fullImage}
+                    """
+                }
+            }
+        }
+        }
 
 
 }
