@@ -88,10 +88,8 @@ pipeline {
                   }
               }
 
-       stage('Optional: Push Docker Image') {
-                  when {
-                       expression { return env.DOCKER_REGISTRY?.trim() }
-                  }
+       stage('Push Docker Image') {
+
                   steps {
                             script {
                                 def fullImage = "${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
