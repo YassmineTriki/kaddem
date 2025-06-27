@@ -100,9 +100,11 @@ pipeline {
                              script {
                                                       def fullImage = "${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
                                                       sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${fullImage}"
-                                                      docker.withRegistry("https://${DOCKER_REGISTRY}", 'DOCKER_HUB_CREDS') {
-                                                          sh "docker push ${fullImage}"
+                                                      withDockerRegistry([credentialsId: 'DOCKER_HUB_CREDS', url: 'https://docker.io']) {
+                                                          sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin docker.io'
+                                                       sh "docker push ${fullImage}"
                                                       }
+
                                                   }
                         }
                   }
