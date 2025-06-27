@@ -10,6 +10,7 @@ pipeline {
             IMAGE_NAME = 'kaddemback'
             IMAGE_TAG = 'latest'
             DOCKER_REGISTRY = 'docker.io' // exemple: 'dockerhub' ou vide si pas de push
+            DOCKER_HUB_NAMESPACE = 'yasmine251'
         }
 
     stages {
@@ -90,25 +91,14 @@ pipeline {
               }
 
        stage('Push Docker Image') {
-           steps {
-               script {
-                   // Accéder aux variables via env. pour les variables d'environnement
-                   def fullImage = "${env.DOCKER_REGISTRY ? env.DOCKER_REGISTRY + '/' : ''}${env.IMAGE_NAME}:${env.IMAGE_TAG}"
-  sh "docker tag ${env.IMAGE_NAME}:${env.IMAGE_TAG} ${fullImage}"
-                       docker.withRegistry("https://${env.DOCKER_REGISTRY}", 'DOCKER_HUB_CREDS') {
-                           sh "docker push ${fullImage}"
-                       }
-                   // Condition pour éviter l'erreur si DOCKER_REGISTRY est vide
-                   /*if (env.DOCKER_REGISTRY) {
-                       sh "docker tag ${env.IMAGE_NAME}:${env.IMAGE_TAG} ${fullImage}"
-                       docker.withRegistry("https://${env.DOCKER_REGISTRY}", 'DOCKER_HUB_CREDS') {
-                           sh "docker push ${fullImage}"
-                       }
-                   } else {
-                       echo "Aucun registry Docker spécifié, skip du push"
-                   }*/
-               }
-           }
+            steps {
+                           script {
+                               docker.withRegistry('https://registry.hub.docker.com', 'yasmine251-credentials') {
+                                   def imageName = "${env.DOCKER_HUB_NAMESPACE}/mon-app:latest"
+                                   docker.build(imageName)
+                                   docker.image(imageName).push()
+                               }
+                           }
         }
     }
 
