@@ -8,7 +8,7 @@ pipeline {
             TEST_PROFILE = '-Dspring.profiles.active=test'
             IMAGE_NAME = 'yasmine251/kaddemback'
             IMAGE_TAG = 'latest'
-            DOCKER_REGISTRY = 'registry.hub.docker.com' // exemple: 'dockerhub' ou vide si pas de push
+            DOCKER_REGISTRY = '' // exemple: 'dockerhub' ou vide si pas de push
             DOCKER_HUB_CREDENTALS = credentials("cred_docker")
      }
 
@@ -98,10 +98,10 @@ pipeline {
 
       stage('Push Docker Image') {
           steps {
-              sh "echo docker login -u ${DOCKER_HUB_CREDENTALS} --password-stdin"
+              sh "docker login -u ${DOCKER_HUB_CREDENTALS_USR} -p ${DOCKER_HUB_CREDENTALS_PSW}"
 
               script {
-                  def fullImage = "${env.DOCKER_REGISTRY}/${env.IMAGE_NAME}:${env.IMAGE_TAG}"
+                  def fullImage = "${env.IMAGE_NAME}:${env.IMAGE_TAG}"
                   sh """
                       docker tag ${env.IMAGE_NAME}:${env.IMAGE_TAG} ${fullImage}
                       docker push ${fullImage}
