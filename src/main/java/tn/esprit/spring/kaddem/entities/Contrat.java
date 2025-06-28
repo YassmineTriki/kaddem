@@ -87,6 +87,7 @@ public class Contrat implements Serializable{
     public Boolean getArchive() {
         return archive;
     }
+
     public void setArchive(Boolean archive) {
         this.archive = archive;
     }
