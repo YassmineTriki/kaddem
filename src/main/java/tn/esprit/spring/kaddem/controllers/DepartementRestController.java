@@ -18,6 +18,8 @@ public class DepartementRestController {
 		List<Departement> listDepartements = departementService.retrieveAllDepartements();
 		return listDepartements;
 	}
+
+
 	// http://localhost:8089/Kaddem/departement/retrieve-departement/8
 	@GetMapping("/retrieve-departement/{departement-id}")
 	public Departement retrieveDepartement(@PathVariable("departement-id") Integer departementId) {

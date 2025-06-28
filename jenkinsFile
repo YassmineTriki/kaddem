@@ -72,9 +72,9 @@ pipeline {
               steps {
                     nexusArtifactUploader(
                                 artifacts: [[
-                                    artifactId: 'kaddem', // Doit matcher <artifactId>
+                                    artifactId: 'kaddem',
                                     file: 'target/kaddem-0.0.1-SNAPSHOT.war', // Nom exact
-                                    type: 'war' // Spring Boot génère un .jar par défaut
+                                    type: 'war' // Spring Boot génère un .war par défaut
                                 ]],
                                 credentialsId: 'nexus',
                                 groupId: 'tn.esprit.spring', // Doit matcher <groupId>
