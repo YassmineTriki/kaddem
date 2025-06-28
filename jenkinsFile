@@ -104,7 +104,7 @@ pipeline {
                   def fullImage = "${env.IMAGE_NAME}:${env.IMAGE_TAG}"
                   sh """
                       docker tag ${env.IMAGE_NAME}:${env.IMAGE_TAG} ${fullImage}
-                      docker push ${fullImage}
+                      docker push --quiet ${fullImage}  && echo "Push successful"
                   """
               }
           }
