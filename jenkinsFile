@@ -88,17 +88,17 @@ pipeline {
               }
           }*/
 
-        stage('Build Docker Image') {
+       /* stage('Build Docker Image') {
                   steps {
                       script {
                          sh "docker build -t ${env.IMAGE_NAME}:${env.IMAGE_TAG} ."
                       }
                   }
-        }
+        }*/
 
       stage('Push Docker Image') {
           steps {
-              sh "echo ${DOCKERHUB_CREDENTALS_PSW} | docker login -u ${DOCKER_HUB_CREDENTALS} --password-stdin"
+              sh "echo docker login -u ${DOCKER_HUB_CREDENTALS} --password-stdin"
 
               script {
                   def fullImage = "${env.DOCKER_REGISTRY}/${env.IMAGE_NAME}:${env.IMAGE_TAG}"
