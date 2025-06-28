@@ -88,13 +88,13 @@ pipeline {
               }
           }*/
 
-        /*stage('Build Docker Image') {
+        stage('Build Docker Image') {
                   steps {
                       script {
                          sh "docker build -t ${env.IMAGE_NAME}:${env.IMAGE_TAG} ."
                       }
                   }
-        }*/
+        }
 
       stage('Push Docker Image') {
       steps {
