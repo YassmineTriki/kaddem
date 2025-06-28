@@ -34,21 +34,21 @@ pipeline {
         }
 
         /* Étape 3 - Tests Unitaires (nouveau)*/
-         //stage('Unit Tests') {
-                    //steps {
-                         //sh """
-                        // ./mvnw test $TEST_PROFILE \
-                         //-Dspring.datasource.url=jdbc:h2:mem:testdb \
-                         //-Dspring.jpa.hibernate.ddl-auto=create-drop
-                         //"""
-                   // }
-                    //post {
-                       // always {
-                            //junit '**/target/surefire-reports/*.xml'  // Publie les rapports JUnit
-                           //   archiveArtifacts artifacts: '**/target/surefire-reports/*.txt', allowEmptyArchive: true
-                        //}
-                   // }
-         //}
+         stage('Unit Tests') {
+                    steps {
+                         sh """
+                         ./mvnw test $TEST_PROFILE \
+                         -Dspring.datasource.url=jdbc:h2:mem:testdb \
+                         -Dspring.jpa.hibernate.ddl-auto=create-drop
+                         """
+                    }
+                    post {
+                        always {
+                            junit '**/target/surefire-reports/*.xml'  // Publie les rapports JUnit
+                              archiveArtifacts artifacts: '**/target/surefire-reports/*.txt', allowEmptyArchive: true
+                        }
+                    }
+         }
           /* Étape 4 - Packaging final */
           stage('Package') {
                         steps {
@@ -58,17 +58,17 @@ pipeline {
                         }
           }
           // Étape 4: Analyse SonarQube
-         /* stage('SonarQube Analysis') {
+          stage('SonarQube Analysis') {
                    steps {
                          withSonarQubeEnv('SonarQube-Server') {
                              sh 'mvn sonar:sonar -Dsonar.projectKey=kaddem'
                          }
 
                      }
-          }*/
+          }
           // Étape 5: Nexus
 
-          /*stage('Nexus') {
+          stage('Nexus') {
               steps {
                     nexusArtifactUploader(
                                 artifacts: [[
@@ -86,7 +86,7 @@ pipeline {
                     )
 
               }
-          }*/
+          }
 
         stage('Build Docker Image') {
                   steps {
