@@ -13,18 +13,18 @@ pipeline {
      }
 
     stages {
-     stage('clean workspace')
-                {
-                    steps{
-                        cleanWs()
-                         }
+         stage('clean workspace')
+                    {
+                        steps{
+                            cleanWs()
+                        }
+                    }
+         // Étape 1 : Récupération du code
+         stage('Checkout Git') {
+                steps {
+                    git branch: 'master', url: 'https://github.com/YassmineTriki/kaddem.git'
                 }
-        // Étape 1 : Récupération du code
-        stage('Checkout Git') {
-            steps {
-                git branch: 'master', url: 'https://github.com/YassmineTriki/kaddem.git'
-            }
-        }
+         }
         /* Étape 2 - Build */
         stage('Build') {
               steps {
@@ -32,6 +32,7 @@ pipeline {
                   sh './mvnw clean compile -DskipTests'
               }
         }
+
         /* Étape 3 - Tests Unitaires (nouveau)*/
          //stage('Unit Tests') {
                     //steps {
@@ -87,31 +88,28 @@ pipeline {
               }
           }*/
 
-       stage('Build Docker Image') {
+        stage('Build Docker Image') {
                   steps {
                       script {
                          sh "docker build -t ${env.IMAGE_NAME}:${env.IMAGE_TAG} ."
                       }
                   }
+        }
+
+      stage('Push Docker Image') {
+          steps {
+              sh "echo ${DOCKERHUB_CREDENTALS_PSW} | docker login -u ${DOCKER_HUB_CREDENTALS} --password-stdin"
+
+              script {
+                  def fullImage = "${env.DOCKER_REGISTRY}/${env.IMAGE_NAME}:${env.IMAGE_TAG}"
+                  sh """
+                      docker tag ${env.IMAGE_NAME}:${env.IMAGE_TAG} ${fullImage}
+                      docker push ${fullImage}
+                  """
               }
-
-  stage('Push Docker Image') {
-            steps {
-                 sh "echo $DOCKERHUB_CREDENTALS_PSW | docker login -u DOCKER_HUB_CREDENTALS --password-stdin"}
-
-                script {
-                    def fullImage = "${env.DOCKER_REGISTRY}/${env.IMAGE_NAME}:${env.IMAGE_TAG}"
-                     sh """
-                                            docker tag ${env.IMAGE_NAME}:${env.IMAGE_TAG} ${fullImage}
-
-                                        """
-                                        sh "docker push ${fullImage}"
-
-
-                }
-            }
-        }
-        }
+          }
+      }
+    }
 
 
 }
