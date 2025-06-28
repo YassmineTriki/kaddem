@@ -88,22 +88,22 @@ pipeline {
               }
           }*/
 
-        stage('Build Docker Image') {
+        /*stage('Build Docker Image') {
                   steps {
                       script {
                          sh "docker build -t ${env.IMAGE_NAME}:${env.IMAGE_TAG} ."
                       }
                   }
-        }
+        }*/
 
       stage('Push Docker Image') {
       steps {
+      sh "docker login -u ${DOCKER_HUB_CREDENTALS_USR} -p ${DOCKER_HUB_CREDENTALS_PSW}"
                             script {
                                 def fullImage = "${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
                                 sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${fullImage}"
-                                docker.withRegistry("https://${DOCKER_REGISTRY}", 'cred_docker') {
-                                    sh "docker push ${fullImage}"
-                                }
+                                sh "docker push ${fullImage}"
+
                             }
                         }
           /*steps {
