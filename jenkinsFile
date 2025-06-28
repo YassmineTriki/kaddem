@@ -97,7 +97,16 @@ pipeline {
         }
 
       stage('Push Docker Image') {
-          steps {
+      steps {
+                            script {
+                                def fullImage = "${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                                bat "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${fullImage}"
+                                docker.withRegistry("https://${DOCKER_REGISTRY}", 'cred_docker') {
+                                    bat "docker push ${fullImage}"
+                                }
+                            }
+                        }
+          /*steps {
               sh "docker login -u ${DOCKER_HUB_CREDENTALS_USR} -p ${DOCKER_HUB_CREDENTALS_PSW}"
 
               script {
@@ -107,7 +116,7 @@ pipeline {
                       docker push --quiet ${fullImage}  && echo "Push successful"
                   """
               }
-          }
+          }*/
       }
     }
 
