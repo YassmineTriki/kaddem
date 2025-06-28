@@ -8,7 +8,7 @@ pipeline {
             TEST_PROFILE = '-Dspring.profiles.active=test'
             IMAGE_NAME = 'yasmine251/kaddemback'
             IMAGE_TAG = 'latest'
-            DOCKER_REGISTRY = 'registry.example.com' // exemple: 'dockerhub' ou vide si pas de push
+            DOCKER_REGISTRY = 'hub.docker.com/repositories' // exemple: 'dockerhub' ou vide si pas de push
             DOCKER_HUB_CREDENTALS = credentials("cred_docker")
      }
 
