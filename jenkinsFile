@@ -54,7 +54,7 @@ pipeline {
                         steps {
                             sh './mvnw clean package -DskipTests'
                             // Vérification que le WAR est généré
-                            sh 'ls -l target/*.war'
+                            sh 'ls -l target/*.jar'
                         }
           }
           // Étape 4: Analyse SonarQube
@@ -73,7 +73,7 @@ pipeline {
                     nexusArtifactUploader(
                                 artifacts: [[
                                     artifactId: 'kaddem',
-                                    file: 'target/kaddem-0.0.1-SNAPSHOT.war', // Nom exact
+                                    file: 'target/kaddem-0.0.1-SNAPSHOT.jar', // Nom exact
                                     type: 'jar' // Spring Boot génère un .war par défaut
                                 ]],
                                 credentialsId: 'nexus',
