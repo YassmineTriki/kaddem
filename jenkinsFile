@@ -74,7 +74,7 @@ pipeline {
                                 artifacts: [[
                                     artifactId: 'kaddem',
                                     file: 'target/kaddem-0.0.1-SNAPSHOT.war', // Nom exact
-                                    type: 'war' // Spring Boot génère un .war par défaut
+                                    type: 'jar' // Spring Boot génère un .war par défaut
                                 ]],
                                 credentialsId: 'nexus',
                                 groupId: 'tn.esprit.spring', // Doit matcher <groupId>
