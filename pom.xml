@@ -23,7 +23,7 @@
     </distributionManagement>
     <name>kaddem</name>
     <description>kaddem</description>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <properties>
         <java.version>17</java.version>
         <!-- Ajout des versions pour les dépendances de test -->
