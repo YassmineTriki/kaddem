@@ -1,27 +1,23 @@
 # Étape de build
-FROM eclipse-temurin:17-jdk-alpine as builder
+FROM maven:3.9.6-eclipse-temurin-17 AS builder
 
 WORKDIR /app
 
-# Copie sélective pour une meilleure efficacité du cache Docker
+# Copier uniquement les fichiers nécessaires (pas besoin de mvnw ni .mvn)
 COPY pom.xml .
 COPY src ./src
-COPY mvnw .
-COPY .mvn .mvn
 
-# Donne les permissions d'exécution à mvnw
-RUN chmod +x mvnw
-
-# Build l'application
-RUN ./mvnw clean package -DskipTests
+# Build l’application avec mvn (Maven installé dans l'image officielle)
+RUN mvn clean package -DskipTests
 
 # Étape d'exécution
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
+# Copier le jar buildé depuis l’étape précédente
 COPY --from=builder /app/target/*.jar app.jar
 
-EXPOSE 8080
+EXPOSE 8072
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

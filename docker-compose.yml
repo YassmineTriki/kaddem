@@ -1,12 +1,10 @@
 version: '3.8'
+
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
     image: yasmine251/kaddem-app:${TAG:-latest}
     ports:
-      - "8080:8080"
+      - "8072:8072"
     environment:
       SPRING_DATASOURCE_URL: jdbc:h2:mem:testdb
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
@@ -16,8 +14,43 @@ services:
       SPRING_JPA_SHOW_SQL: "true"
       SPRING_H2_CONSOLE_ENABLED: "true"
       SPRING_H2_CONSOLE_PATH: /h2-console
-      SERVER_SERVLET_CONTEXT_PATH: /demo
-      SERVER_PORT: 8080
-    # Pour le développement, vous pouvez monter le volume local
+      SERVER_PORT: 8072
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,prometheus
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: always
+      MANAGEMENT_ENDPOINTS_WEB_BASE_PATH: /actuator
+
+      # Configuration Prometheus
+      MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED: "true"
     volumes:
-      - ~/.m2:/root/.m2  # Cache Maven
+      - ~/.m2:/root/.m2
+
+  front:
+    image: yasmine251/front-devops:36
+    ports:
+      - "4200:80" # ou 4200:4200 selon ton Dockerfile
+    depends_on:
+      - app
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  node-exporter:
+    image: prom/node-exporter
+    ports:
+      - "9100:9100"
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter
+    ports:
+      - "9115:9115"
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
